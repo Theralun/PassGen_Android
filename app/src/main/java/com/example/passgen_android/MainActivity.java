@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.content.ClipboardManager;
 import android.widget.Toast;
@@ -15,6 +16,10 @@ public class MainActivity extends AppCompatActivity {
     TextView txvnumin;
     Button btnGenerate;
     TextView txvpassout;
+    Switch swUpper;
+    Switch swLower;
+    Switch swNumerals;
+    Switch swSigns;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,6 +27,11 @@ public class MainActivity extends AppCompatActivity {
         txvnumin = findViewById(R.id.txvnumin);
         txvpassout = findViewById(R.id.txvpassout);
         btnGenerate = findViewById(R.id.btnGenerate);
+
+        swUpper = findViewById(R.id.swUpper);
+        swLower = findViewById(R.id.swLower);
+        swNumerals = findViewById(R.id.swNums);
+        swSigns = findViewById(R.id.swSigns);
 
         btnGenerate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -39,7 +49,24 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                String password = randomAlphaNumeric(passlen);
+                String pool = "";
+
+                if (swUpper.isChecked())
+                    pool += ALPHA_UPPER;
+
+                if (swLower.isChecked())
+                    pool += ALPHA_LOWER;
+
+                if (swNumerals.isChecked())
+                    pool += NUMS;
+
+                if (swSigns.isChecked())
+                    pool += SPECIALS;
+
+                if (pool.equals(""))
+                    pool = ALPHA_UPPER+ALPHA_LOWER+NUMS+SPECIALS;
+
+                String password = randomAlphaNumeric(passlen, pool);
                 txvpassout.setText(password);
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("passwordCopy", password);
@@ -56,18 +83,28 @@ public class MainActivity extends AppCompatActivity {
                 ClipData clip = ClipData.newPlainText("passwordCopy", txvpassout.getText().toString());
                 clipboard.setPrimaryClip(clip);
 
+
+
                 Toast.makeText(MainActivity.this, "Copied to Clipboard", Toast.LENGTH_SHORT).show();
             }
         });
 
     }
 
-    private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    public static String randomAlphaNumeric(int count) {
+
+    private static final String ALPHA_LOWER = "abcdefghijklmnopqrstuvwxyz";
+    private static final String ALPHA_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String NUMS = "0123456789";
+    private static final String SPECIALS = "-_%?!§$&~=";
+
+
+    public static String randomAlphaNumeric(int count, String pool) {
+
+
         StringBuilder builder = new StringBuilder();
         while (count-- != 0) {
-            int character = (int)(Math.random()*ALPHA_NUMERIC_STRING.length());
-            builder.append(ALPHA_NUMERIC_STRING.charAt(character));
+            int character = (int)(Math.random()*pool.length());
+            builder.append(pool.charAt(character));
         }
         return builder.toString();
     }
